@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Quiz You Can't Escape 💘</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&family=Dancing+Script:wght@700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: background 0.6s ease;
+  }
+
+  .page { display: none; width: 100%; min-height: 100vh; align-items: center; justify-content: center; flex-direction: column; padding: 24px; }
+  .page.active { display: flex; }
+
+  /* ── LANDING PAGE ── */
+  #p0 { background: linear-gradient(135deg, #ff6b9d, #c44dff); text-align: center; }
+  #p0 .emoji-float { font-size: 3.5rem; animation: bob 2s ease-in-out infinite; }
+  #p0 h1 { font-family: 'Dancing Script', cursive; font-size: 2.6rem; color: #fff; margin: 12px 0 8px; text-shadow: 0 2px 8px rgba(0,0,0,.2); }
+  #p0 p { color: rgba(255,255,255,0.88); font-size: 1rem; margin-bottom: 28px; max-width: 300px; line-height: 1.5; }
+
+  /* ── QUESTION PAGES ── */
+  .q-page { text-align: left; }
+  #p1 { background: #7a2200; }
+  #p2 { background: #6b0000; }
+  #p3 { background: #1a6600; }
+  #p4 { background: #4a0070; }
+
+  .progress-bar { width: 100%; max-width: 420px; height: 6px; background: rgba(255,255,255,0.2); border-radius: 99px; margin-bottom: 32px; }
+  .progress-fill { height: 100%; background: #fff; border-radius: 99px; transition: width 0.4s ease; }
+
+  .brand { font-size: 0.7rem; color: rgba(255,255,255,0.45); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 24px; }
+
+  .card { max-width: 420px; width: 100%; }
+
+  .question { font-size: 1.55rem; font-weight: 900; color: #fff; line-height: 1.3; margin-bottom: 28px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .opt-btn {
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.25);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 13px 18px;
+    border-radius: 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s, transform 0.15s, border-color 0.2s;
+  }
+  .opt-btn:hover { background: rgba(255,255,255,0.25); transform: translateX(4px); border-color: rgba(255,255,255,0.6); }
+  .opt-btn.selected { background: rgba(255,255,255,0.35); border-color: #fff; transform: translateX(6px); }
+  .opt-btn span.letter { font-style: italic; margin-right: 8px; opacity: 0.75; }
+
+  /* ── YES / NO BUTTONS ── */
+  .yn-row { display: flex; gap: 14px; }
+  .btn-yes, .btn-no {
+    flex: 1;
+    padding: 15px;
+    border-radius: 50px;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-yes { background: #fff; color: #111; box-shadow: 0 4px 18px rgba(0,0,0,0.2); }
+  .btn-yes:hover { transform: scale(1.06); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+  .btn-no { background: transparent; color: rgba(255,255,255,0.6); border: 2px solid rgba(255,255,255,0.3); }
+  .btn-no:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+
+  .yn-label { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-top: 10px; text-align: center; font-style: italic; }
+
+  /* ── END PAGE ── */
+  #pEnd { background: linear-gradient(135deg, #c44dff, #ff6b9d); text-align: center; }
+  #pEnd .big-emoji { font-size: 5rem; margin-bottom: 16px; animation: heartbeat 1s ease infinite; }
+  #pEnd h2 { font-family: 'Dancing Script', cursive; font-size: 2.4rem; color: #fff; margin-bottom: 10px; }
+  #pEnd p { color: rgba(255,255,255,0.88); font-size: 1rem; max-width: 300px; line-height: 1.6; margin-bottom: 28px; }
+  .restart-btn { background: #fff; color: #c44dff; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1rem; padding: 14px 36px; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.15); transition: transform 0.15s; }
+  .restart-btn:hover { transform: scale(1.06); }
+
+  /* ── FLOATING START BUTTON ── */
+  .start-btn {
+    background: #fff;
+    color: #c44dff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 16px 44px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.18);
+    transition: transform 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .start-btn:hover { transform: scale(1.07); }
+
+  /* ── NO BUTTON SHAKE ANIMATION ── */
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-6px)}
+    80%{transform:translateX(6px)}
+  }
+  .shake { animation: shake 0.4s ease; }
+
+  @keyframes bob {
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-12px)}
+  }
+  @keyframes heartbeat {
+    0%,100%{transform:scale(1)}
+    50%{transform:scale(1.15)}
+  }
+
+  /* ── NO MODAL (running away effect) ── */
+  #no-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  #no-modal.show { display: flex; }
+  .no-modal-box {
+    background: #fff;
+    border-radius: 24px;
+    padding: 32px 28px;
+    text-align: center;
+    max-width: 300px;
+    animation: popIn 0.3s ease;
+  }
+  @keyframes popIn {
+    from{transform:scale(0.7);opacity:0}
+    to{transform:scale(1);opacity:1}
+  }
+  .no-modal-box h3 { font-size: 1.4rem; font-weight: 900; margin-bottom: 8px; }
+  .no-modal-box p { font-size: 0.9rem; color: #555; margin-bottom: 20px; line-height: 1.5; }
+  .modal-ok {
+    background: linear-gradient(135deg, #ff6b9d, #c44dff);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 32px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  /* Confetti */
+  .confetti { position: fixed; top: -10px; pointer-events: none; width: 10px; height: 10px; border-radius: 2px; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- ═══ LANDING ═══ -->
+<div class="page active" id="p0">
+  <div class="emoji-float">💌</div>
+  <h1>Hold up, bestie...</h1>
+  <p>Someone left you this little quiz.<br>It's short. It's cute. It's probably about them. 👀</p>
+  <button class="start-btn" onclick="goTo('p1')">Okay fine, let's go →</button>
+</div>
+
+<!-- ═══ Q1 ═══ -->
+<div class="page q-page" id="p1">
+  <div class="card">
+    <p class="brand">flamingocardsapp</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+    <p class="question">What was the first thing I did that made you realize you really liked me? 😏</p>
+    <div class="options">
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">A)</span> Your smile — it's literally illegal</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">B)</span> Your humor — I was NOT ready 😂</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">C)</span> Your confidence — said what?!</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">D)</span> Your eyes — they said something your mouth didn't 👀</button>
+    </div>
+    <div class="yn-row">
+      <button class="btn-no" onclick="handleNo()">🙅 Nope, skip</button>
+      <button class="btn-yes" onclick="goTo('p2')">Yes, and?? →</button>
+    </div>
+    <p class="yn-label">Psst — "Nope" just reloads. Escape is not an option. 😂</p>
+  </div>
+</div>
+
+<!-- ═══ Q2 ═══ -->
+<div class="page q-page" id="p2">
+  <div class="card">
+    <p class="brand">flamingocardsapp</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+    <p class="question">Am I really your type, or did you just start liking me? 🤔</p>
+    <div class="options">
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">A)</span> Totally my type — always was 😌</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">B)</span> Learned to — and I'm not mad about it</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">C)</span> Grew on me — like a really cute fungus 🍄</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">D)</span> Both, honestly — the math just works 🤷</button>
+    </div>
+    <div class="yn-row">
+      <button class="btn-no" onclick="handleNo()">🏃 I'm outta here</button>
+      <button class="btn-yes" onclick="goTo('p3')">Keep going →</button>
+    </div>
+    <p class="yn-label">The "run" button doesn't actually work. Shocker. 😂</p>
+  </div>
+</div>
+
+<!-- ═══ Q3 ═══ -->
+<div class="page q-page" id="p3">
+  <div class="card">
+    <p class="brand">flamingocardsapp</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+    <p class="question">Who was the first person you told you really liked me? 🤭</p>
+    <div class="options">
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">A)</span> Best friend — they were NOT surprised 💀</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">B)</span> Mom — she ships us already 🥺</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">C)</span> Sister — she said "finally"</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">D)</span> Diary — top secret, classified info 📖🔒</button>
+    </div>
+    <div class="yn-row">
+      <button class="btn-no" onclick="handleNo()">😤 I'm done fr</button>
+      <button class="btn-yes" onclick="goTo('p4')">One more! →</button>
+    </div>
+    <p class="yn-label">You're literally almost done. STOP trying to leave. 😭</p>
+  </div>
+</div>
+
+<!-- ═══ Q4 BONUS ═══ -->
+<div class="page q-page" id="p4">
+  <div class="card">
+    <p class="brand">flamingocardsapp</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+    <p class="question">Okay final boss question — would you go on a date with me? 💀💘</p>
+    <div class="options">
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">A)</span> Yes, obviously, why are you even asking</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">B)</span> Maybe… depends on where 🤨</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">C)</span> Let me think— YES 🤭</button>
+      <button class="opt-btn" onclick="selectOpt(this)"><span class="letter">D)</span> Only if you're paying 😌💅</button>
+    </div>
+    <div class="yn-row">
+      <button class="btn-no" onclick="handleNo()">😭 I can't do this</button>
+      <button class="btn-yes" onclick="finish()">Finish 🎉</button>
+    </div>
+    <p class="yn-label">The "No" button has given up on you. Just say yes. 😂</p>
+  </div>
+</div>
+
+<!-- ═══ END ═══ -->
+<div class="page" id="pEnd">
+  <div class="big-emoji">💘</div>
+  <h2>You made it to the end!</h2>
+  <p>Whoever sent you this quiz is really out here putting their heart on the line just for you. 🥺<br><br>Go text them back. Like right now. They're probably refreshing their phone.</p>
+  <button class="restart-btn" onclick="restart()">Play Again 🔄</button>
+</div>
+
+<!-- ═══ NO MODAL ═══ -->
+<div id="no-modal">
+  <div class="no-modal-box">
+    <h3>Nope. 😂</h3>
+    <p>That button literally doesn't work. The universe won't let you escape.<br>Accept your fate and answer the question. 💀</p>
+    <button class="modal-ok" onclick="closeModal()">Ugh, FINE 😤</button>
+  </div>
+</div>
+
+<script>
+  let noCount = 0;
+  const noMessages = [
+    { title: "Nope. 😂", body: "That button literally doesn't work. The universe won't let you escape. Accept your fate and answer the question. 💀" },
+    { title: "Still no? 😭", body: "Girl, that button has been broken since page 1. It's giving 'running in place.' Just answer the question!" },
+    { title: "Okay I respect the commitment 💀", body: "But also it literally doesn't work. We've been over this. Answer the question and let's move on!" },
+    { title: "You're actually insane 😂", body: "The 'No' button has filed for resignation. It no longer works here. Neither does your escape plan." },
+    { title: "STOP 💀💀💀", body: "At this point you're just having fun pressing it. Which is fine. But you're still answering the question lol." },
+  ];
+
+  function handleNo() {
+    const modal = document.getElementById('no-modal');
+    const box = modal.querySelector('.no-modal-box');
+    const msg = noMessages[Math.min(noCount, noMessages.length - 1)];
+    box.querySelector('h3').textContent = msg.title;
+    box.querySelector('p').textContent = msg.body;
+    modal.classList.add('show');
+    noCount++;
+  }
+
+  function closeModal() {
+    document.getElementById('no-modal').classList.remove('show');
+  }
+
+  function goTo(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    noCount = 0;
+  }
+
+  function selectOpt(btn) {
+    btn.closest('.options').querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  function finish() {
+    launchConfetti();
+    setTimeout(() => goTo('pEnd'), 400);
+  }
+
+  function restart() {
+    document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+    noCount = 0;
+    goTo('p0');
+  }
+
+  function launchConfetti() {
+    const colors = ['#ff6b9d','#c44dff','#ffde59','#5bf5c3','#fff'];
+    for (let i = 0; i < 60; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+      el.style.animationDelay = Math.random() * 0.8 + 's';
+      el.style.transform = `rotate(${Math.random()*360}deg)`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+  }
+</script>
+</body>
+</html>
